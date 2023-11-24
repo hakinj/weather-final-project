@@ -11,8 +11,81 @@ window.addEventListener("load", (e) => {
     let paragph = document.querySelector(".fact")
 
 
+    const createWeatherCard = (cityName, weatherItem, fullName, countryCode, index) => {
+        if (index === 0) {
+
+            return `<div class="details">
+                   <h2>${fullName}</h2>
+                   <h2>${countryCode}</h2>
+                    <h2>${cityName} (${weatherItem.dt_txt.split(" ")})</h2>
+                    <h4>Temperature: ${(weatherItem.main.temp - 273.15).toFixed(2)}°C</h4>
+                    <h4>Wind: ${weatherItem.wind.speed}M/S</h4>
+                    <h4>Humidity: ${weatherItem.main.humidity}%</h4>
+                    <h4>Visibility: ${weatherItem.visibility}M</h4>
+                    <h4>Pressure: ${weatherItem.main.pressure}hPa</h4>
+                </div>
+                <div class="icon">
+                    <img src="https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@2x.png"alt="weather icon">
+                    <h4>${weatherItem.weather[0].description}</h4>
+                </div>`
+
+        } else {
+            return ` <li class="card">
+                    <h3> (${weatherItem.dt_txt.split(" ")[0]})</h3>
+                    <img src="https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@2x.png"alt="weather icon">
+                    <h4>Temp: ${(weatherItem.main.temp - 273.15).toFixed(2)}°C</h4>
+                    <h4>Wind: ${weatherItem.wind.speed}M/S</h4>
+                    <h4>Humidity: ${weatherItem.main.humidity}%</h4>
+                    <h4>Visibility: ${weatherItem.visibility}M</h4>
+                    <h>Pressure: ${weatherItem.main.pressure}hPa</h4>
+                    </li>
+                    `;
+
+        }
+
+    }
 
 
+    const getWeatherDetails = (cityName, fullName, countryCode, lat, lon) => {
+
+        let weatherUrl_API = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${AP1_KEY}`
+        fetch(weatherUrl_API).then(res => res.json()).then(data => {
+            const uniqueForecastDays = [];
+            const daysForecast = data.list.filter(forecast => {
+                const forecastDate = new Date(forecast.dt_txt).getDate();
+                if (!uniqueForecastDays.includes(forecastDate)) {
+                    return uniqueForecastDays.push(forecastDate);
+
+                }
+            });
+
+
+            cityInput.value = "";
+            currenWeatherDiv.innerHTML = "";
+            weatherCardsDiv.innerHTML = "";
+            nameInput.value = "";
+            countryInput.value = "";
+
+            daysForecast.forEach((weatherItem, index) => {
+                if (index === 0) {
+                    currenWeatherDiv.insertAdjacentHTML("beforeend", createWeatherCard(cityName, weatherItem, fullName, countryCode, index));
+                } else {
+                    weatherCardsDiv.insertAdjacentHTML("beforeend", createWeatherCard(cityName, weatherItem, fullName, countryCode, index));
+                }
+
+
+            });
+        })
+
+            .catch(error => {
+                alert("An Error occur while fetching weather details")
+            })
+
+
+
+
+        
+    }
     const getLocationCoordinates = () => {
 
         const fullName = nameInput.value.trim().toUpperCase()
@@ -42,79 +115,6 @@ window.addEventListener("load", (e) => {
     
             }).catch(error =>{alert("error getting country fact")});
 
-
-        const getWeatherDetails = (cityName, fullName, countryCode, lat, lon) => {
-
-            let weatherUrl_API = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${AP1_KEY}`
-            fetch(weatherUrl_API).then(res => res.json()).then(data => {
-                const uniqueForecastDays = [];
-                const daysForecast = data.list.filter(forecast => {
-                    const forecastDate = new Date(forecast.dt_txt).getDate();
-                    if (!uniqueForecastDays.includes(forecastDate)) {
-                        return uniqueForecastDays.push(forecastDate);
-
-                    }
-                });
-
-
-                cityInput.value = "";
-                currenWeatherDiv.innerHTML = "";
-                weatherCardsDiv.innerHTML = "";
-                nameInput.value = "";
-                countryInput.value = "";
-
-                daysForecast.forEach((weatherItem, index) => {
-                    if (index === 0) {
-                        currenWeatherDiv.insertAdjacentHTML("beforeend", createWeatherCard(cityName, weatherItem, fullName, countryCode, index));
-                    } else {
-                        weatherCardsDiv.insertAdjacentHTML("beforeend", createWeatherCard(cityName, weatherItem, fullName, countryCode, index));
-                    }
-
-
-                });
-            })
-
-                .catch(error => {
-                    alert("An Error occur while fetching weather details")
-                })
-
-
-
-
-            const createWeatherCard = (cityName, weatherItem, fullName, countryCode, index) => {
-                if (index === 0) {
-
-                    return `<div class="details">
-                           <h2>${fullName}</h2>
-                           <h2>${countryCode}</h2>
-                            <h2>${cityName} (${weatherItem.dt_txt.split(" ")})</h2>
-                            <h4>Temperature: ${(weatherItem.main.temp - 273.15).toFixed(2)}°C</h4>
-                            <h4>Wind: ${weatherItem.wind.speed}M/S</h4>
-                            <h4>Humidity: ${weatherItem.main.humidity}%</h4>
-                            <h4>Visibility: ${weatherItem.visibility}M</h4>
-                            <h4>Pressure: ${weatherItem.main.pressure}hPa</h4>
-                        </div>
-                        <div class="icon">
-                            <img src="https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@2x.png"alt="weather icon">
-                            <h4>${weatherItem.weather[0].description}</h4>
-                        </div>`
-
-                } else {
-                    return ` <li class="card">
-                            <h3> (${weatherItem.dt_txt.split(" ")[0]})</h3>
-                            <img src="https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@2x.png"alt="weather icon">
-                            <h4>Temp: ${(weatherItem.main.temp - 273.15).toFixed(2)}°C</h4>
-                            <h4>Wind: ${weatherItem.wind.speed}M/S</h4>
-                            <h4>Humidity: ${weatherItem.main.humidity}%</h4>
-                            <h4>Visibility: ${weatherItem.visibility}M</h4>
-                            <h>Pressure: ${weatherItem.main.pressure}hPa</h4>
-                            </li>
-                            `;
-
-                }
-
-            }
-        }
 
     }
 
